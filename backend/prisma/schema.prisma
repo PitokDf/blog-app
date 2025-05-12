@@ -34,16 +34,6 @@ model post_meta {
   @@index([post_id], map: "post_id")
 }
 
-model post_tags {
-  post_id Int
-  tag_id  Int
-  posts   posts @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "post_tags_ibfk_1")
-  tags    tags  @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "post_tags_ibfk_2")
-
-  @@id([post_id, tag_id])
-  @@index([tag_id], map: "tag_id")
-}
-
 model posts {
   id              Int               @id @default(autoincrement())
   author_id       Int
@@ -54,17 +44,9 @@ model posts {
   updated_at      DateTime?         @default(now()) @db.DateTime(0)
   post_categories post_categories[]
   post_meta       post_meta[]
-  post_tags       post_tags[]
   users           users             @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "posts_ibfk_1")
 
   @@index([author_id], map: "author_id")
-}
-
-model tags {
-  id        Int         @id @default(autoincrement())
-  name      String      @db.VarChar(100)
-  slug      String      @unique(map: "slug") @db.VarChar(100)
-  post_tags post_tags[]
 }
 
 enum userRole {

@@ -1,5 +1,5 @@
 import { body } from "express-validator";
-import { getAllCategory } from "../services/post_category.service";
+import { getAllCategoryService } from "../services/post_category.service";
 import { slugPostExis } from "../services/post.service";
 
 export const createPostValidator = [
@@ -20,7 +20,7 @@ export const createPostValidator = [
     body("categoryIds").optional().bail()
         .isArray().withMessage("Kategori ID harus array")
         .custom(async (categoryIds: number[]) => {
-            const categoriesID = (await getAllCategory()).map((ctg) => ctg.id)
+            const categoriesID = (await getAllCategoryService()).map((ctg) => ctg.id)
 
             const invalid = categoryIds.filter((id) => !categoriesID.includes(id))
 
@@ -53,7 +53,7 @@ export const updatePostValidator = [
     body("categoryIds").optional().bail()
         .isArray().withMessage("Kategori ID harus array")
         .custom(async (categoryIds: number[]) => {
-            const categoriesID = (await getAllCategory()).map((ctg) => ctg.id)
+            const categoriesID = (await getAllCategoryService()).map((ctg) => ctg.id)
 
             const invalid = categoryIds.filter((id) => !categoriesID.includes(id))
 
