@@ -1,7 +1,7 @@
 export interface ArticleContent {
     _id?: string;
-    portID: number;
-    contentType: string;
+    postID: number;
+    content: string;
     createdAt?: Date;
     updatedAt: Date;
 }
