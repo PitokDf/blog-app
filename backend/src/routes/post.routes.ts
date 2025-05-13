@@ -13,7 +13,7 @@ import { handleValidationErrors } from "../middlewares/handle_validation_errors"
 const postRouter = Router()
 
 postRouter.get("/", getAllPostController)
-postRouter.get("/:id", getPostByIdController)
+postRouter.get("/:slug", getPostByIdController)
 postRouter.post("/", createPostValidator, handleValidationErrors, createPostController)
 postRouter.delete("/:id", deletePostController)
 postRouter.put("/:id", updatePostValidator, handleValidationErrors, updatePostController)

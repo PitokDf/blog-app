@@ -1,13 +1,19 @@
 import { Request, Response } from "express";
 import { ResponseApiType } from "../types/api_types";
 import { handlerAnyError } from "../errors/api_errors";
-import { createPostService, deletePostService, getAllPostService, getPostByIdService, updatePostService } from "../services/post.service";
+import { createPostService, deletePostService, getAllPostService, getPostByIdService, getPostBySlugService, updatePostService } from "../services/post.service";
 
 export async function getAllPostController(req: Request, res: Response<ResponseApiType>) {
     try {
         const { posts, postsContent } = await getAllPostService()
         const articles = posts.map((post) => ({
-            ...post,
+            id: post.id,
+            title: post.title,
+            slug: post.slug,
+            summary: post.summary,
+            author: `${post.users.first_name} ${post.users.last_name}`,
+            publishedAt: post.created_at,
+            category: post.post_categories.map((post) => post.categories.name),
             content: postsContent.find((content) => content.postID === post.id)?.content || null
         }))
 
@@ -23,12 +29,23 @@ export async function getAllPostController(req: Request, res: Response<ResponseA
 
 export async function getPostByIdController(req: Request, res: Response<ResponseApiType>) {
     try {
-        const { id } = req.params
-        const post = await getPostByIdService(Number(id))
+        const { slug } = req.params
+        const post = await getPostBySlugService(slug)
+
+        const postMap = {
+            id: post.id,
+            title: post.title,
+            slug: post.slug,
+            author: post.users.first_name,
+            summary: post.summary,
+            publishedAt: post.created_at,
+            category: post.post_categories.map((cate) => ({ id: cate.category_id, name: cate.categories.name })),
+            content: post.content
+        }
         return res.status(200).json({
             success: true,
-            message: `berhasil mendapatkan post: ${id}`,
-            data: post,
+            message: `berhasil mendapatkan post: ${slug}`,
+            data: postMap,
         })
     } catch (error) {
         return handlerAnyError(error, res)

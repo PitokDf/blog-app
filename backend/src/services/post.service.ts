@@ -3,10 +3,46 @@ import { prisma } from "../db/prisma";
 import { AppError } from "../errors/api_errors";
 
 export async function getAllPostService() {
-    const posts = await prisma.posts.findMany()
+    const posts = await prisma.posts.findMany({
+        include: {
+            users: { select: { first_name: true, last_name: true } }, post_categories:
+                { include: { categories: { select: { name: true } } } }
+        }
+    })
     const postsContent = await mongo.articles.find().toArray()
 
     return { posts, postsContent }
+}
+
+export async function getPostBySlugService(slug: string) {
+    const post = await prisma.posts.findFirst({
+        where: { slug },
+        include: {
+            users: { select: { first_name: true, last_name: true } }, post_categories:
+                { include: { categories: { select: { name: true } } } }
+        }
+    })
+
+    if (!post) throw new AppError(`Post dengan slug: ${slug}, tidak tersedia.`, 404);
+
+    const content = await mongo.articles.findOne({ postID: post.id })
+
+    const meta = await prisma.post_meta.findFirst({
+        where: { post_id: post.id, meta_key: "views" },
+    })
+
+    if (meta) {
+        const newValue = isNaN(Number(meta.meta_value)) ? 0 : Number(meta.meta_value) + 1
+        await prisma.post_meta.update({
+            where: { id: meta.id },
+            data: { meta_value: String(newValue) }
+        })
+    } else {
+        await prisma.post_meta.create({
+            data: { post_id: post.id, meta_key: "views", meta_value: "1" }
+        })
+    }
+    return { ...post, content: content?.content || null }
 }
 
 export async function getPostByIdService(id: number) {
@@ -16,7 +52,7 @@ export async function getPostByIdService(id: number) {
 
     if (!post) throw new AppError(`Post dengan id: ${id}, tidak tersedia.`, 404);
 
-    const content = await mongo.articles.findOne({ postID: id })
+    const content = await mongo.articles.findOne({ postID: post.id })
 
     return { ...post, content: content?.content || null }
 }

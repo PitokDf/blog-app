@@ -38,7 +38,6 @@ export const updatePostValidator = [
         .custom(async (slug, { req }) => {
             const id = req.params?.id
             const exists = await slugPostExis(slug, Number(id))
-
             if (exists) throw new Error(`Slug: '${slug}', sudah tersedia`);
             return true
         }),
