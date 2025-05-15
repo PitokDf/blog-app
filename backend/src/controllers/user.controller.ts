@@ -38,8 +38,7 @@ export async function updateUserController(req: Request, res: Response<ResponseA
         const { email, first_name, last_name, password, role } = req.body
 
         let passwordhash = undefined
-
-        if (password) await hashing(password);
+        if (password) passwordhash = await hashing(password);
         const updated = await updateUserService(Number(id), email, first_name, last_name, passwordhash!, role)
 
         return res.status(200).json({
@@ -72,6 +71,8 @@ export async function createUserController(req: Request, res: Response<ResponseA
 export async function deleteUserController(req: Request, res: Response<ResponseApiType>) {
     try {
         const { id } = req.params
+        console.log('User ID', id);
+
         const deleted = await deleteUserService(Number(id))
 
         return res.status(200).json({

@@ -24,6 +24,8 @@ import {
   X,
 } from 'lucide-react';
 import { GlobalSearch } from '../global-search';
+import { useAuth } from '@/context/AuthContext';
+import { DeleteConfirmDialog } from '../ui/delete-confirm-dialog';
 
 interface TopbarProps {
   toggleSidebar: () => void;
@@ -32,7 +34,8 @@ interface TopbarProps {
 
 export function Topbar({ toggleSidebar, sidebarOpen }: TopbarProps) {
   const { theme, setTheme } = useTheme();
-
+  const { user, logout } = useAuth();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   return (
     <header className="h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
       <div className="flex h-full items-center justify-between px-4">
@@ -71,7 +74,7 @@ export function Topbar({ toggleSidebar, sidebarOpen }: TopbarProps) {
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="/avatar.png" alt="Admin" />
-                  <AvatarFallback>AD</AvatarFallback>
+                  <AvatarFallback>{user?.first_name?.toUpperCase().slice(0, 2)}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -88,15 +91,29 @@ export function Topbar({ toggleSidebar, sidebarOpen }: TopbarProps) {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/login">
+                <Button variant={"ghost"} className='w-full flex justify-start hover:border-none cursor-pointer hover:bg-red-500' onClick={() => {
+                  setDeleteDialogOpen(true)
+                }}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
-                </Link>
+                </Button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
+      {
+        deleteDialogOpen && (
+          <DeleteConfirmDialog
+            description='Yakin ingin keluar?'
+            onConfirm={logout}
+            onOpenChange={setDeleteDialogOpen}
+            open={deleteDialogOpen}
+            title='Konfirmasi keluar'
+            titleButton='Keluar'
+          />
+        )
+      }
     </header>
   );
 }

@@ -9,7 +9,7 @@ interface Props { html: string; }
 export default function QuillViewer({ html }: Props) {
     const cleanHtml = DOMPurify.sanitize(html, { ADD_ATTR: ["class", "id"], MATHML_TEXT_INTEGRATION_POINTS: { mText: true } });
     return (
-        <div className="ql-viewer ql-snow">
+        <div className="ql-editor ql-snow" style={{ minHeight: "max-content" }}>
             <div dangerouslySetInnerHTML={{ __html: cleanHtml }} />
         </div>
 

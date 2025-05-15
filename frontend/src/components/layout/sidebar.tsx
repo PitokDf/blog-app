@@ -15,6 +15,7 @@ import {
   Settings,
   BookOpen,
 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 interface SidebarProps {
   open: boolean;
@@ -68,10 +69,12 @@ export function Sidebar({ open }: SidebarProps) {
     { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { href: '/dashboard/posts', icon: FileText, label: 'Posts' },
     { href: '/dashboard/categories', icon: FolderArchive, label: 'Categories' },
-    { href: '/dashboard/users', icon: Users, label: 'Users' },
-    { href: '/dashboard/settings', icon: Settings, label: 'Settings' }
   ];
 
+  const { user } = useAuth()
+  const isAdmin = user?.role === "admin"
+
+  isAdmin && navItems.push({ href: '/dashboard/users', icon: Users, label: 'Users' })
   return (
     <aside
       className={cn(

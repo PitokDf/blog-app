@@ -3,7 +3,6 @@ import { ResponseApiType } from "../types/api_types";
 import { handlerAnyError } from "../errors/api_errors";
 import { getRecentPost, getStatsService } from "../services/dashboard.service";
 import { getAllPostService } from "../services/post.service";
-import { getAllCategoryService } from "../services/post_category.service";
 import { prisma } from "../db/prisma";
 
 export async function getStatsController(req: Request, res: Response<ResponseApiType>) {

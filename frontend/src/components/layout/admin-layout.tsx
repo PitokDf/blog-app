@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
+import LoginPage from '@/app/login/page';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -13,6 +15,7 @@ interface AdminLayoutProps {
 export function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const pathname = usePathname();
+  const { isLoggedIn } = useAuth()
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -21,6 +24,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   // Check if we're on a full-screen page like login
   if (pathname.startsWith('/login')) {
     return <>{children}</>;
+  }
+
+  if (!isLoggedIn) {
+    return <LoginPage />
   }
 
   return (

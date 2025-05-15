@@ -14,6 +14,7 @@ import { QuillEditor } from '../QuillEditor';
 import QuillViewer from '../QuilViewer';
 import axiosInstance from '@/lib/axios';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
 
 type PostEditorProps = {
   isEdit?: boolean;
@@ -23,6 +24,7 @@ type PostEditorProps = {
 
 export function PostEditor({ defaultValues, isEdit, id }: PostEditorProps) {
   const router = useRouter()
+  const { user } = useAuth()
   const [title, setTitle] = useState(isEdit ? defaultValues?.title : "");
   const [slug, setSlug] = useState(isEdit ? defaultValues?.slug : "");
   const [summary, setSummary] = useState(isEdit ? defaultValues?.summary : "");
@@ -73,12 +75,12 @@ export function PostEditor({ defaultValues, isEdit, id }: PostEditorProps) {
     try {
       if (isEdit) {
         await axiosInstance.put(`/posts/${id}`, {
-          "author_id": 2, slug, title, content, summary, categoryIds: selectedCategories
+          "author_id": user?.id, slug, title, content, summary, categoryIds: selectedCategories
         })
         toast({ description: "Yee, post berhasil di diperbarui." })
       } else {
         await axiosInstance.post("/posts", {
-          "author_id": 2, slug, title, content, summary, categoryIds: selectedCategories
+          "author_id": user?.id, slug, title, content, summary, categoryIds: selectedCategories
         })
         toast({ description: "Yee, post berhasil di simpan." })
       }

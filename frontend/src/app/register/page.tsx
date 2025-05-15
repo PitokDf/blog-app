@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,27 +20,48 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const formSchema = z.object({
-    email: z.string().email({ message: "Please enter a valid email address" }),
-    password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+export const formSchema = z.object({
+    first_name: z.string().min(3, "First name must be at least 3 characters"),
+    last_name: z.string().optional(),
+    email: z.string().nonempty("Email is required"),
+    password: z.string().nonempty("Password is required")
 });
+
+type RegisterFormValues = z.infer<typeof formSchema>
 
 export default function LoginPage() {
     const router = useRouter();
-    const { login, isLoading } = useAuth()
+    const { register, serverErrors, isLoading } = useAuth()
     const [showPassword, setShowPassword] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             email: "",
+            first_name: "",
+            last_name: "",
             password: "",
         },
     });
 
+    useEffect(() => {
+        serverErrors?.forEach(e => {
+            if (e.path && form.getFieldState(e.path as keyof RegisterFormValues).invalid === false) {
+                form.setError(e.path as keyof RegisterFormValues, {
+                    type: "server",
+                    message: e.msg
+                })
+            }
+        })
+    }, [serverErrors])
+
+    console.log(serverErrors);
+
+
     function onSubmit(values: z.infer<typeof formSchema>) {
-        login(values.email, values.password)
+        register(values)
     }
 
     return (
@@ -52,14 +73,40 @@ export default function LoginPage() {
                             <LockKeyhole className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                         </div>
                     </div>
-                    <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
+                    <CardTitle className="text-2xl font-bold text-center">Register Here</CardTitle>
                     <CardDescription className="text-center">
-                        Enter your credentials to access your account
+                        Enter your informasi bellow
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                            <FormField
+                                name="first_name"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>First Name</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="e.g. Pito" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                name="last_name"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Last Name (optional)</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="e.g. Desri" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                             <FormField
                                 control={form.control}
                                 name="email"
@@ -109,27 +156,20 @@ export default function LoginPage() {
                                 )}
                             />
                             <Button type="submit" className="w-full" disabled={isLoading}>
-                                {isLoading ? "Signing in..." : "Sign in"}
+                                {isLoading ? "Signing up..." : "Sign up"}
                             </Button>
                         </form>
                     </Form>
                 </CardContent>
                 <CardFooter className="flex flex-col space-y-4">
+
                     <div className="text-sm text-center text-muted-foreground">
+                        already have an account?{" "}
                         <Link
-                            href="/forgot-password"
+                            href="/login"
                             className="underline underline-offset-4 hover:text-primary"
                         >
-                            Forgot your password?
-                        </Link>
-                    </div>
-                    <div className="text-sm text-center text-muted-foreground">
-                        Don't have an account?{" "}
-                        <Link
-                            href="/register"
-                            className="underline underline-offset-4 hover:text-primary"
-                        >
-                            Sign up
+                            Sign in
                         </Link>
                     </div>
                 </CardFooter>

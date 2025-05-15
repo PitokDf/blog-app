@@ -30,8 +30,8 @@ export const updateUserValidator = [
     body("email").optional().bail()
         .notEmpty().withMessage("Email harus diisi").bail()
         .isEmail().withMessage("Email tidak valid")
-        .custom(async (email) => {
-            const exists = await existsEmail(email)
+        .custom(async (email, { req }) => {
+            const exists = await existsEmail(email, Number(req.params?.id))
 
             if (exists) throw new Error("Email sudah digunakan");
 

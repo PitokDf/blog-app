@@ -8,10 +8,10 @@ import dashboardRouter from "./dashboard.routes";
 
 const apiRouter = Router()
 
-apiRouter.use('/users', jwtCheckToken, userRouter)
+apiRouter.use('/users', userRouter)
 apiRouter.use('/auth', authRouter)
 apiRouter.use('/posts', postRouter)
 apiRouter.use('/categories', categoryRouter)
-apiRouter.use('/dashboard', dashboardRouter)
+apiRouter.use('/dashboard', jwtCheckToken, dashboardRouter)
 
 export default apiRouter

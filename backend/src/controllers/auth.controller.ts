@@ -18,14 +18,14 @@ export async function loginController(req: Request, res: Response<ResponseApiTyp
             })
         }
 
-        const token = generateToken(
+        const token = await generateToken(
             { id: userExists?.id!, email: userExists?.email!, first_name: userExists?.first_name!, last_name: userExists?.last_name!, role: userExists?.role! }
         )
 
         return res.status(200).json({
             success: true,
             message: `Welcome back ${userExists?.first_name}`,
-            data: { token }
+            data: { token, user: userExists }
         })
     } catch (error) {
         return handlerAnyError(error, res)
@@ -35,15 +35,18 @@ export async function loginController(req: Request, res: Response<ResponseApiTyp
 
 export async function registerController(req: Request, res: Response<ResponseApiType>) {
     try {
-        const { email, first_name, last_name, password_hash } = req.body
+        const { email, first_name, last_name, password } = req.body
+        console.log(req.body);
 
-        const hashedPassword = (await hashing(password_hash))!
-        const user = await createUserService(email, first_name, last_name, hashedPassword, "viewer")
-
+        const hashedPassword = (await hashing(password))!
+        const user = await createUserService(email, first_name, last_name, hashedPassword, "writter")
+        const token = await generateToken(
+            { id: user?.id!, email: user?.email!, first_name: user?.first_name!, last_name: user?.last_name!, role: user.role }
+        )
         return res.status(200).json({
             success: true,
             message: "Berhsasil membuat akun",
-            data: user
+            data: { user, token }
         })
     } catch (error) {
         return handlerAnyError(error, res)
