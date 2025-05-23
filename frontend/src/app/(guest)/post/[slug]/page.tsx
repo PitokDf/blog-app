@@ -21,7 +21,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
     const { slug } = params;
     // Contoh fetch data post berdasarkan slug
-    const post = await fetch(`http://localhost:8080/api/posts/${slug}`).then(res => res.json());
+    const post = await fetch(`http://localhost:8081/api/posts/${slug}`).then(res => res.json());
     if (!post) return {};
     return {
         title: post.data.title,
